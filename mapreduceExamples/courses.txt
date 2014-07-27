@@ -1,0 +1,8 @@
+Bobby Math 95 Science 86 History 68 English 75 
+Janice Math 80 Science 93 History 98 English 89 
+Rudy Math 100 Science 90 History 91 English 90
+BillBob Science 100 Juggling 90
+Bobby Math 95 Science 86 History 68 English 75 
+Janice Math 80 Science 93 History 98 English 89 
+Rudy Math 100 Science 90 History 91 English 90
+BillBob Science 100 Juggling 90
