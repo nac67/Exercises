@@ -16,14 +16,9 @@ import nick.mapreduce.PoolWorker.Type;
  * @author Nick Cheng
  */
 public class MapReduceController {
-    int numWorkers;
     List<Tuple> inputLines;
     Instructions instructions;
     List<Tuple> output;
-    
-    public MapReduceController() {
-        numWorkers = 32;
-    }
     
     /**
      * Add a new job to the controller.
