@@ -56,7 +56,7 @@ public class PoolWorker extends Thread {
             List<Tuple> reduceInput = null;
             
             /* By the time it reaches the poll, there definitely needs to be
-             * Stuff inside the queue, without the queueLock it is possible,
+             * Stuff inside the queue, without the queueLock it is possible
              * that it breaks out of the while loop and by the time it reaches
              * the poll, someone else has already polled. However, this thread
              * cannot hold onto the queueLock when it is waiting so thats why
@@ -80,7 +80,6 @@ public class PoolWorker extends Thread {
                 }else {
                     reduceInput = reduceInputQueue.poll();
                 }
-                
             queueLock.release();
             
             List<Tuple> resultM = null;
