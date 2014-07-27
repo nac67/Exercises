@@ -32,7 +32,7 @@ public class MapReduceTest {
      */    
     @Test
     public void testAverageGradeSerial() throws FileNotFoundException, IOException {
-        List<Tuple> input = getTuplesFromFile("courses.txt");
+        List<Tuple> input = getTuplesFromFile("mapreduceExamples/courses.txt");
         
         MapReduceController mr = new MapReduceController();
         
@@ -68,7 +68,7 @@ public class MapReduceTest {
     
     @Test
     public void testAverageGradeConcurrent() throws FileNotFoundException, IOException {
-        List<Tuple> input = getTuplesFromFile("courses.txt");
+        List<Tuple> input = getTuplesFromFile("mapreduceExamples/courses.txt");
         
         MapReduceController mr = new MapReduceController();
         
@@ -102,7 +102,7 @@ public class MapReduceTest {
     
     @Test
     public void testAverageGradePool() throws FileNotFoundException, IOException {
-        List<Tuple> input = getTuplesFromFile("courses.txt");
+        List<Tuple> input = getTuplesFromFile("mapreduceExamples/courses.txt");
         
         MapReduceController mr = new MapReduceController();
         
