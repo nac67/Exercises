@@ -76,7 +76,7 @@ public class PoolWorker extends Thread {
                             needJobs.wait(); //wait until the queue has stuff
                             queueLock.acquireUninterruptibly();
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            return; //terminate thread
                         }
                     }
                 }

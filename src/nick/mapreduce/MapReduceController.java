@@ -238,17 +238,17 @@ public class MapReduceController {
         
         neededJobs = data.size();
         
-        //set up reducers work queue
-        //no need to lock since the workers are not checking for reduce jobs yet
+        // set up reducers work queue
+        // no need to lock since the workers are not checking for reduce jobs yet
         for (Map.Entry<String, List<Tuple>> entry : data.entrySet()) {
             List<Tuple> pairs = entry.getValue();
             reduceInputQueue.add(pairs);
         }
         
-        //all workers will begin checking for reduce jobs once notified
+        // all workers will begin checking for reduce jobs once notified
         setAllModes(pool, PoolWorker.Type.REDUCER);
         
-        //notify all workers
+        // notify all workers
         synchronized (needJobs){
             needJobs.notifyAll();
         }
@@ -265,7 +265,12 @@ public class MapReduceController {
             }
         }
         
-        //output will be returned, or can be retrieved from gatherResult
+        // terminate all threads
+        for(PoolWorker p : pool) {
+            p.interrupt();
+        }
+        
+        // output will be returned, or can be retrieved from gatherResult
         output = reducerResults;
         return output;
     }
