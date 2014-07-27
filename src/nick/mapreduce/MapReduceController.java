@@ -10,6 +10,11 @@ import java.util.concurrent.Semaphore;
 
 import nick.mapreduce.PoolWorker.Type;
 
+/**
+ * Oversees the entire mapreduce job and controls all of the worker threads.
+ * 
+ * @author Nick Cheng
+ */
 public class MapReduceController {
     int numWorkers;
     List<Tuple> inputLines;

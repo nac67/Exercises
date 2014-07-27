@@ -4,6 +4,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
+/**
+ * A worker thread that can perform multiple jobs of either
+ * mapping or reducing.
+ * 
+ * @author Nick Cheng
+ */
 public class PoolWorker extends Thread {
     public enum Type {WAIT, MAPPER, REDUCER};
 

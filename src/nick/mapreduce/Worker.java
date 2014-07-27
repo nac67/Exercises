@@ -2,6 +2,12 @@ package nick.mapreduce;
 
 import java.util.List;
 
+/**
+ * A worker thread that will be set to perform either map or reduce.
+ * It will perform its one job, then terminate.
+ * 
+ * @author Nick Cheng
+ */
 public class Worker extends Thread {
     public enum Type {MAPPER, REDUCER};
 
