@@ -1,6 +1,13 @@
 Exercises
 =========
-----------
+
+Projects
+-------------------------
+###Mapreduce
+An implementation of mapreduce that that can either
+* Run on one thread
+* Run on multiple threads (expanding as necessary)
+* Run on a fixed size pool of threads
 
 Configuring with Eclipse
 -------------------------
