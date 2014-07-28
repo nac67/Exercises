@@ -1,0 +1,9 @@
+Harrisburg 81 59
+Houston 95 79
+SanFransico 75 61
+SanAntonio 97 75
+Phildelphia 86 63
+Austin 97 79
+Pittsburgh 70 54
+Sacramento 106 66
+LosAngeles 84 70

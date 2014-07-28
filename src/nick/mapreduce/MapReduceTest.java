@@ -8,7 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -171,6 +173,107 @@ public class MapReduceTest {
         return new Tuple(className, average.toString());
     }
     
+    
+    /**
+     * Input file contains multiple lines of the format
+     * city highTemp lowTemp
+     * city highTemp lowTemp
+     * 
+     * Each mapper handles one city, and outputs a tuple of <state, hi low> 
+     * 
+     * Each reducer will then handle one state (the shuffle stage gathers 
+     * all the states into groups) and find overall high and low
+     * 
+     * The final output is a list of states with their highs and lows.
+     */
+    @Test
+    public void testWeatherPool() throws FileNotFoundException, IOException {
+        List<Tuple> input = getTuplesFromFile("mapreduceExamples/weather.txt");
+        
+        MapReduceController mr = new MapReduceController();
+        
+        mr.addJob(input, new Instructions() {
+            
+            @Override
+            public List<Tuple> map(Tuple input) {
+                return weatherMap(input);
+            }
+            
+            @Override
+            public Tuple reduce(List<Tuple> input) {
+                return weatherReduce(input);
+            }
+            
+        }).executeThreadPool(2);
+        
+        
+        List<Tuple> output = mr.gatherResult();
+        
+        assertEquals(3, output.size());
+        for(Tuple tup : output) {
+            assertTuple(tup, "PA", "86 54");
+            assertTuple(tup, "TX", "97 75");
+            assertTuple(tup, "CA", "106 61");
+        }
+    }
+    
+    
+    private List<Tuple> weatherMap(Tuple input) {
+        // input is coming in as:
+        // city high low
+        
+        Map<String, String> mockLocationService = new HashMap<String, String>();
+        mockLocationService.put("Harrisburg", "PA");
+        mockLocationService.put("Pittsburgh", "PA");
+        mockLocationService.put("Phildelphia", "PA");
+        mockLocationService.put("Houston", "TX");
+        mockLocationService.put("SanAntonio", "TX");
+        mockLocationService.put("Austin", "TX");
+        mockLocationService.put("Sacramento", "CA");
+        mockLocationService.put("LosAngeles", "CA");
+        mockLocationService.put("SanFransico", "CA");
+          
+        List<Tuple> output = new ArrayList<Tuple>();
+        
+        String city = input.fst();
+        String hiLow = input.snd();
+        
+        output.add(new Tuple(mockLocationService.get(city), hiLow));
+        
+        lolligag();
+        
+        //<state, hi low>
+        return output;
+    }
+    
+    private Tuple weatherReduce(List<Tuple> input) {
+        // input is coming in as 
+        // <same state, hilow from one city>, <same state, hilow from another city>...
+        String state = input.get(0).fst();
+        
+        Integer highest = Integer.MIN_VALUE;
+        Integer lowest = Integer.MAX_VALUE;
+        
+        for(Tuple pair : input) {
+            String[] hiAndLow = pair.snd().split("\\s+");
+            int hi = Integer.parseInt(hiAndLow[0]);
+            int lo = Integer.parseInt(hiAndLow[1]);
+            
+            if(hi>highest) {
+                highest = hi;
+            }
+            
+            if(lo<lowest) {
+                lowest = lo;
+            }
+        }
+        
+        
+        lolligag();
+        
+        // output <same state, state's hi low>
+        return new Tuple(state, highest.toString()+" "+lowest.toString());
+    }
     
     
     
