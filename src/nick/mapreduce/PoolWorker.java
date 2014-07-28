@@ -2,7 +2,6 @@ package nick.mapreduce;
 
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.Semaphore;
 
 /**
  * A worker thread that can perform multiple jobs of either
@@ -22,7 +21,6 @@ public class PoolWorker extends Thread {
     private List<Tuple> reduceResults;
     
     private Object listLock;
-    private Semaphore queueLock;
     private Object needJobs;
     private Object isTableComplete;
     
@@ -35,7 +33,6 @@ public class PoolWorker extends Thread {
             List<List<Tuple>> mapResults,
             List<Tuple> reduceResults,
             Object listLock,
-            Semaphore queueLock,
             Object needJobs,
             Object isTableComplete) {
         
@@ -45,7 +42,6 @@ public class PoolWorker extends Thread {
         this.mapResults = mapResults;
         this.reduceResults = reduceResults;
         this.listLock = listLock;
-        this.queueLock = queueLock;
         this.needJobs = needJobs;
         this.isTableComplete = isTableComplete;
         
@@ -61,23 +57,17 @@ public class PoolWorker extends Thread {
             Tuple mapInput = null;
             List<Tuple> reduceInput = null;
             
-            /* By the time it reaches the poll, there definitely needs to be
-             * Stuff inside the queue, without the queueLock it is possible
-             * that it breaks out of the while loop and by the time it reaches
-             * the poll, someone else has already polled. However, this thread
-             * cannot hold onto the queueLock when it is waiting so thats why
-             * it releases, waits, and then grabs the lock again.
+            /*
+             * needJobs serves both to protect against multiple access to
+             * the queue, and also as the condition variable to communicate
+             * that there are jobs in the queue.
              */
-            queueLock.acquireUninterruptibly();
+            synchronized(needJobs){
                 while(listNotReady()){
-                    synchronized(needJobs){
-                        try {
-                            queueLock.release();
-                            needJobs.wait(); //wait until the queue has stuff
-                            queueLock.acquireUninterruptibly();
-                        } catch (InterruptedException e) {
-                            return; //terminate thread
-                        }
+                    try {
+                        needJobs.wait(); //wait until the queue has stuff
+                    } catch (InterruptedException e) {
+                        return; //terminate thread
                     }
                 }
                 
@@ -86,7 +76,7 @@ public class PoolWorker extends Thread {
                 }else {
                     reduceInput = reduceInputQueue.poll();
                 }
-            queueLock.release();
+            }
             
             List<Tuple> resultM = null;
             Tuple resultR = null;

@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Semaphore;
 
 import nick.mapreduce.PoolWorker.Type;
 
@@ -165,10 +164,6 @@ public class MapReduceController {
         // Mutex lock so that lists remain consistent
         final Object listLock = new Object();
         
-        // Semaphore acting as a mutex lock to make sure queues stay consistent
-        // see Worker.java for reasoning
-        final Semaphore queueLock = new Semaphore(1);
-        
         Queue<Tuple> mapInputQueue = new LinkedList<Tuple>();
         Queue<List<Tuple>> reduceInputQueue = new LinkedList<List<Tuple>>();
         
@@ -179,7 +174,7 @@ public class MapReduceController {
         PoolWorker[] pool = new PoolWorker[workers];
         for(int i=0;i<workers;i++){
             pool[i] = new PoolWorker();
-            pool[i].configure(instructions, mapInputQueue, reduceInputQueue, mapperResults, reducerResults, listLock, queueLock, needJobs, isTableComplete);
+            pool[i].configure(instructions, mapInputQueue, reduceInputQueue, mapperResults, reducerResults, listLock, needJobs, isTableComplete);
             pool[i].start();
         }
         
