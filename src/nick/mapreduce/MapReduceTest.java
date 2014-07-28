@@ -277,6 +277,89 @@ public class MapReduceTest {
     
     
     
+    
+    /**
+     * Input file is a short story, with multiple lines of text
+     * 
+     * Each mapper handles one line and outputs a list of tuples that
+     * indicate characters in each word. <charsInWord1, 1> <charsInWord2, 1>...
+     * 
+     * Each reducer will then handle the entire group of tuples with like character counts
+     * and figure out how many words of each character count there is
+     * 
+     * The final output is a list of <charCount, number of words with that char count>
+     */
+    @Test
+    public void testCharCountPool() throws FileNotFoundException, IOException {
+        List<Tuple> input = getTuplesFromFileSimple("mapreduceExamples/shortstory.txt");
+        
+        MapReduceController mr = new MapReduceController();
+        
+        mr.addJob(input, new Instructions() {
+            
+            @Override
+            public List<Tuple> map(Tuple input) {
+                return charCountMap(input);
+            }
+            
+            @Override
+            public Tuple reduce(List<Tuple> input) {
+                return charCountReduce(input);
+            }
+            
+        }).executeThreadPool(8);
+        
+        
+        List<Tuple> output = mr.gatherResult();
+        
+        assertTrue(output.size()>0);
+        for(Tuple tup : output) {
+            assertTuple(tup, "1", "217");
+            assertTuple(tup, "2", "501");
+            assertTuple(tup, "3", "577");
+            assertTuple(tup, "4", "511");
+            assertTuple(tup, "5", "257");
+            assertTuple(tup, "6", "260");
+            assertTuple(tup, "7", "193");
+            assertTuple(tup, "8", "104");
+            assertTuple(tup, "9", "77");
+            assertTuple(tup, "10", "47");
+            assertTuple(tup, "11", "14");
+            assertTuple(tup, "12", "9");
+            assertTuple(tup, "13", "7");
+            assertTuple(tup, "14", "6");
+        }
+    }
+    
+    private List<Tuple> charCountMap(Tuple input) {
+        // input is coming in as a line of text
+        
+        String[] words = input.snd().replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+          
+        List<Tuple> output = new ArrayList<Tuple>();
+        
+        for(String word : words) {
+            Integer chars = word.length();
+            output.add(new Tuple(chars.toString(),"1"));
+        }
+        
+        lolligag();
+        
+        //<charCount, 1>, <charCount, 1> ...
+        return output;
+    }
+    
+    private Tuple charCountReduce(List<Tuple> input) {
+        // input is coming in as 
+        //<charCount, 1>, <charCount, 1> ...
+        String chars = input.get(0).fst();
+        Integer count = input.size();
+        
+        // output <charCount, # of words with that charCount>
+        return new Tuple(chars, count.toString());
+    }
+    
+    
     //-------------------------HELPER-METHODS------------------------------------
     
     private List<Tuple> getTuplesFromFile(String file) throws IOException, FileNotFoundException {
@@ -286,6 +369,17 @@ public class MapReduceTest {
             for(String line = reader.readLine(); line != null; line = reader.readLine()){
                 int firstSpace = line.indexOf(' ');
                 input.add( new Tuple(line.substring(0, firstSpace), line.substring(firstSpace+1)) );
+            }
+        }
+        return input;
+    }
+    
+    private List<Tuple> getTuplesFromFileSimple(String file) throws IOException, FileNotFoundException {
+        List<Tuple> input = new ArrayList<Tuple>();
+        
+        try(BufferedReader reader = new BufferedReader(new FileReader(new File(file)))){
+            for(String line = reader.readLine(); line != null; line = reader.readLine()){
+                input.add( new Tuple("", line) );
             }
         }
         return input;
